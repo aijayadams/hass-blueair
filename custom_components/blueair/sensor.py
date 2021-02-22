@@ -8,23 +8,27 @@ from . import blueair
 
 SCAN_INTERVAL = timedelta(seconds=300)
 
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     try:
-      api = blueair.BlueAir(username=config['user'], password=config['password'])
+        api = blueair.BlueAir(username=config["user"], password=config["password"])
     except KeyError as e:
-      raise Unauthorized(f"BlueAir authorizarion failed")
+        raise Unauthorized(f"BlueAir authorizarion failed")
 
     ha_entities = []
     devices = api.get_devices()
     for dev in devices:
-        ha_entities.append(BlueAirFilter(config=config, uuid=dev["uuid"], name=dev["name"], api=api))
+        ha_entities.append(
+            BlueAirFilter(config=config, uuid=dev["uuid"], name=dev["name"], api=api)
+        )
 
     add_entities(ha_entities)
 
 
 class BlueAirFilter(Entity):
     """Representation of BlueAir Sensor Data."""
+
     should_poll = True
 
     def __init__(self, config, uuid, name, api):
@@ -61,4 +65,4 @@ class BlueAirFilter(Entity):
         This is the only method that should fetch new data for Home Assistant.
         """
         self._ba_attrs = self._api.get_current_data_point(self._ba_uuid)
-        self._state = self._ba_attrs['temperature']
+        self._state = self._ba_attrs["temperature"]
