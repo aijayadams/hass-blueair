@@ -1,0 +1,15 @@
+{
+  "domain": "blueair",
+  "name": "BlueAir",
+  "config_flow": false,
+  "documentation": "https://www.github.com/aijayadams/hass-blueair",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@aijayadams"
+  ],
+  "version": "1.0.0"
+}
