@@ -86,6 +86,7 @@ class BlueairCO2Sensor(BlueairEntity, SensorEntity):
     """Monitors the CO2."""
 
     _attr_device_class = DEVICE_CLASS_CO2
+    _attr_native_unit_of_measurement = "ppm"
 
     def __init__(self, name, device):
         """Initialize the CO2 sensor."""
@@ -104,6 +105,7 @@ class BlueairVOCSensor(BlueairEntity, SensorEntity):
     """Monitors the VOC."""
 
     _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
+    _attr_native_unit_of_measurement = "ppb"
 
     def __init__(self, name, device):
         """Initialize the VOC sensor."""
@@ -122,6 +124,7 @@ class BlueairAllPollutionSensor(BlueairEntity, SensorEntity):
     """Monitors the all pollution."""
 
     _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
+    _attr_native_unit_of_measurement = "ppb"
 
     def __init__(self, name, device):
         """Initialize the all pollution sensor."""
@@ -140,6 +143,7 @@ class BlueairPM1Sensor(BlueairEntity, SensorEntity):
     """Monitors the pm1"""
 
     _attr_device_class = DEVICE_CLASS_PM1
+    _attr_native_unit_of_measurement = "µg/m³"
 
     def __init__(self, name, device):
         """Initialize the pm1 sensor."""
@@ -158,6 +162,7 @@ class BlueairPM10Sensor(BlueairEntity, SensorEntity):
     """Monitors the pm10"""
 
     _attr_device_class = DEVICE_CLASS_PM10
+    _attr_native_unit_of_measurement = "µg/m³"
 
     def __init__(self, name, device):
         """Initialize the pm10 sensor."""
@@ -176,6 +181,7 @@ class BlueairPM25Sensor(BlueairEntity, SensorEntity):
     """Monitors the pm25"""
 
     _attr_device_class = DEVICE_CLASS_PM25
+    _attr_native_unit_of_measurement = "µg/m³"
 
     def __init__(self, name, device):
         """Initialize the pm25 sensor."""
