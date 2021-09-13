@@ -165,6 +165,28 @@ class BlueAir(object):
         """
         return self.api_call(f"device/{device_uuid}/info/")
 
+    def set_fan_speed(self, device_uuid, new_speed):
+        """
+        Set the fan speed per @spikeyGG comment at https://community.home-assistant.io/t/blueair-purifier-addon/154456/14
+        """
+        print (f"dev {device_uuid}, speed {new_speed}, apikey {API_KEY}, auth {self.auth_token}, homehost {self.home_host}")
+
+        res = requests.post(
+            f"https://{self.home_host}/v2/device/{device_uuid}/attribute/fanspeed/",
+            headers={
+                "Content-Type": "application/json",
+                "X-API-KEY-TOKEN": API_KEY,
+                "X-AUTH-TOKEN": self.auth_token,
+            },
+            json={
+                "currentValue": new_speed,
+                "scope": "device",
+                "defaultValue": new_speed,
+                "name": "fan_speed",
+                "uuid": device_uuid,
+            },
+        )
+
     # Note: refreshes every 5 minutes
     def get_current_data_point(
         self, device_uuid: str

@@ -1,68 +1,190 @@
-"""Platform for blueair sensor integration."""
-from homeassistant.const import TEMP_CELSIUS
-from homeassistant.helpers.entity import Entity
+"""Support for Blueair sensors."""
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import (
+    DEVICE_CLASS_CO2,
+    DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_PM1,
+    DEVICE_CLASS_PM10,
+    DEVICE_CLASS_PM25,
+    DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS,
+    TEMP_CELSIUS,
+    PERCENTAGE,
+)
 
-from datetime import timedelta
+from .const import DOMAIN
+from .device import BlueairDataUpdateCoordinator
+from .entity import BlueairEntity
 
-from . import blueair
+NAME_TEMPERATURE = "Temperature"
+NAME_HUMIDITY = "Humidity"
 
-SCAN_INTERVAL = timedelta(seconds=300)
 
-
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the sensor platform."""
-    try:
-        api = blueair.BlueAir(username=config["user"], password=config["password"])
-    except KeyError as e:
-        raise Unauthorized(f"BlueAir authorizarion failed")
-
-    ha_entities = []
-    devices = api.get_devices()
-    for dev in devices:
-        ha_entities.append(
-            BlueAirFilter(config=config, uuid=dev["uuid"], name=dev["name"], api=api)
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up the Blueair sensors from config entry."""
+    devices: list[BlueairDataUpdateCoordinator] = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]["devices"]
+    entities = []
+    for device in devices:
+        entities.extend(
+            [
+                BlueairTemperatureSensor(f"{device.device_name}_temperature", device),
+                BlueairHumiditySensor(f"{device.device_name}_humidity", device),
+                BlueairCO2Sensor(f"{device.device_name}_co2", device),
+                BlueairVOCSensor(f"{device.device_name}_voc", device),
+                BlueairAllPollutionSensor(
+                    f"{device.device_name}_all_pollution", device
+                ),
+                BlueairPM1Sensor(f"{device.device_name}_pm1", device),
+                BlueairPM10Sensor(f"{device.device_name}_pm10", device),
+                BlueairPM25Sensor(f"{device.device_name}_pm25", device),
+            ]
         )
+    async_add_entities(entities)
 
-    add_entities(ha_entities)
 
+class BlueairTemperatureSensor(BlueairEntity, SensorEntity):
+    """Monitors the temperature."""
 
-class BlueAirFilter(Entity):
-    """Representation of BlueAir Sensor Data."""
+    _attr_device_class = DEVICE_CLASS_TEMPERATURE
+    _attr_native_unit_of_measurement = TEMP_CELSIUS
 
-    should_poll = True
-
-    def __init__(self, config, uuid, name, api):
-        """Initialize the sensor."""
-        self._state = None
-        self._api = api
-        self._ba_uuid = uuid
-        self._ba_name = name
-
-        self.update()
+    def __init__(self, name, device):
+        """Initialize the temperature sensor."""
+        super().__init__(NAME_TEMPERATURE, name, device)
+        self._state: float = None
 
     @property
-    def device_state_attributes(self):
-        """Return the state attributes of the device."""
-        return self._ba_attrs
+    def native_value(self) -> float:
+        """Return the current temperature."""
+        if self._device.temperature is None:
+            return None
+        return round(self._device.temperature, 1)
+
+
+class BlueairHumiditySensor(BlueairEntity, SensorEntity):
+    """Monitors the humidity."""
+
+    _attr_device_class = DEVICE_CLASS_HUMIDITY
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+    def __init__(self, name, device):
+        """Initialize the humidity sensor."""
+        super().__init__(NAME_HUMIDITY, name, device)
+        self._state: float = None
 
     @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"BlueAir {self._ba_name}"
+    def native_value(self) -> float:
+        """Return the current humidity."""
+        if self._device.humidity is None:
+            return None
+        return round(self._device.humidity, 0)
+
+
+class BlueairCO2Sensor(BlueairEntity, SensorEntity):
+    """Monitors the CO2."""
+
+    _attr_device_class = DEVICE_CLASS_CO2
+
+    def __init__(self, name, device):
+        """Initialize the CO2 sensor."""
+        super().__init__("co2", name, device)
+        self._state: float = None
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
+    def native_value(self) -> float:
+        """Return the current co2."""
+        if self._device.co2 is None:
+            return None
+        return round(self._device.co2, 0)
+
+
+class BlueairVOCSensor(BlueairEntity, SensorEntity):
+    """Monitors the VOC."""
+
+    _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
+
+    def __init__(self, name, device):
+        """Initialize the VOC sensor."""
+        super().__init__("voc", name, device)
+        self._state: float = None
 
     @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
+    def native_value(self) -> float:
+        """Return the current voc."""
+        if self._device.voc is None:
+            return None
+        return round(self._device.voc, 0)
 
-    def update(self):
-        """Fetch new state data for the sensor.
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        self._ba_attrs = self._api.get_current_data_point(self._ba_uuid)
-        self._state = self._ba_attrs["temperature"]
+
+class BlueairAllPollutionSensor(BlueairEntity, SensorEntity):
+    """Monitors the all pollution."""
+
+    _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
+
+    def __init__(self, name, device):
+        """Initialize the all pollution sensor."""
+        super().__init__("all_pollution", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current all pollution."""
+        if self._device.all_pollution is None:
+            return None
+        return round(self._device.all_pollution, 0)
+
+
+class BlueairPM1Sensor(BlueairEntity, SensorEntity):
+    """Monitors the pm1"""
+
+    _attr_device_class = DEVICE_CLASS_PM1
+
+    def __init__(self, name, device):
+        """Initialize the pm1 sensor."""
+        super().__init__("pm1", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current pm1."""
+        if self._device.pm1 is None:
+            return None
+        return round(self._device.pm1, 0)
+
+
+class BlueairPM10Sensor(BlueairEntity, SensorEntity):
+    """Monitors the pm10"""
+
+    _attr_device_class = DEVICE_CLASS_PM10
+
+    def __init__(self, name, device):
+        """Initialize the pm10 sensor."""
+        super().__init__("pm10", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current pm10."""
+        if self._device.pm10 is None:
+            return None
+        return round(self._device.pm10, 0)
+
+
+class BlueairPM25Sensor(BlueairEntity, SensorEntity):
+    """Monitors the pm25"""
+
+    _attr_device_class = DEVICE_CLASS_PM25
+
+    def __init__(self, name, device):
+        """Initialize the pm25 sensor."""
+        super().__init__("pm25", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current pm25."""
+        if self._device.pm25 is None:
+            return None
+        return round(self._device.pm25, 0)
