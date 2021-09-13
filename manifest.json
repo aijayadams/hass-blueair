@@ -1,0 +1,14 @@
+{
+    "domain": "blueair",
+    "name": "BlueAir",
+    "config_flow": true,
+    "documentation": "https://www.github.com/aijayadams/hass-blueair",
+    "iot_class": "cloud_polling",
+    "requirements": [],
+    "ssdp": [],
+    "zeroconf": [],
+    "homekit": {},
+    "dependencies": [],
+    "codeowners": ["@aijayadams"],
+    "version": "1.0.0"
+}

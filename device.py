@@ -30,6 +30,7 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         self._manufacturer: str = "BlueAir"
         self._device_information: dict[str, Any] = {}
         self._datapoint: dict[str, Any] = {}
+        self._attribute: dict[str, Any] = {}
 
         super().__init__(
             hass,
@@ -56,9 +57,7 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
     @property
     def device_name(self) -> str:
         """Return device name."""
-        return self._device_information.get(
-            "nickname", f"{self.manufacturer} {self.name}"
-        )
+        return self._device_information.get("nickname", f"{self.name}")
 
     @property
     def manufacturer(self) -> str:
@@ -80,6 +79,21 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         """Return the current relative humidity percentage."""
         return self._datapoint["humidity"]
 
+    @property
+    def fan_speed(self) -> int:
+        """Return the current fan speed."""
+        return int(self._attribute["fan_speed"])
+
+    @property
+    def fan_mode(self) -> str:
+        """Return the current fan mode."""
+        return self._attribute["fan_mode"]
+
+    @property
+    def filter_status(self) -> str:
+        """Return the current filter status."""
+        return self._attribute["filter_status"]
+
     async def _update_device(self, *_) -> None:
         """Update the device information from the API."""
         self._device_information = await self.hass.async_add_executor_job(
@@ -87,4 +101,7 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         )
         self._datapoint = await self.hass.async_add_executor_job(
             lambda: self.api_client.get_current_data_point(self._uuid)
+        )
+        self._attribute = await self.hass.async_add_executor_job(
+            lambda: self.api_client.get_attributes(self._uuid)
         )
