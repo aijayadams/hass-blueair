@@ -49,14 +49,14 @@ class BlueairFan(BlueairEntity, FanEntity):
 
     @property
     def is_on(self) -> int:
-        return self._device.fan_speed > 0
+        return self._device.is_on
 
     @property
     def percentage(self) -> Optional[int]:
         """Return the current speed percentage."""
         return int(round(self._device.fan_speed * 33.33, 0))
 
-    def set_percentage(self, percentage: int) -> None:
+    async def async_set_percentage(self, percentage: int) -> None:
         """Sets fan speed percentage."""
         if percentage == 100:
             new_speed = "3"
@@ -67,19 +67,13 @@ class BlueairFan(BlueairEntity, FanEntity):
         else:
             new_speed = "0"
 
-        self._device.api_client.set_fan_speed(self._device.id, new_speed)
-        self._device._attribute["fan_speed"] = str(percentage)
-        self._device._update_device()
+        await self._device.set_fan_speed(new_speed)
 
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self._device.set_fan_speed("0")
 
-    def turn_off(self) -> None:
-        self._device.api_client.set_fan_speed(self._device.id, "0")
-        self._device._attribute["fan_speed"] = str(0)
-
-    def turn_on(self) -> None:
-        self._device.api_client.set_fan_speed(self._device.id, "2")
-        self._device._attribute["fan_speed"] = str(66)
-
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._device.set_fan_speed("2")
 
     @property
     def speed_count(self) -> int:

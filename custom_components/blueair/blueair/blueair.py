@@ -169,8 +169,6 @@ class BlueAir(object):
         """
         Set the fan speed per @spikeyGG comment at https://community.home-assistant.io/t/blueair-purifier-addon/154456/14
         """
-        print (f"dev {device_uuid}, speed {new_speed}, apikey {API_KEY}, auth {self.auth_token}, homehost {self.home_host}")
-
         res = requests.post(
             f"https://{self.home_host}/v2/device/{device_uuid}/attribute/fanspeed/",
             headers={

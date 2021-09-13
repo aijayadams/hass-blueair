@@ -45,8 +45,6 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
             async with timeout(10):
                 await asyncio.gather(*[self._update_device()])
         except Exception as error:
-            print(error)
-            raise error
             raise UpdateFailed(error) from error
 
     @property
@@ -115,6 +113,13 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         return int(self._attribute["fan_speed"])
 
     @property
+    def is_on(self) -> bool():
+        """Return the current fan state."""
+        if self._attribute["fan_speed"] == "0":
+            return False
+        return True
+
+    @property
     def fan_mode(self) -> str:
         """Return the current fan mode."""
         return self._attribute["fan_mode"]
@@ -123,6 +128,13 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
     def filter_status(self) -> str:
         """Return the current filter status."""
         return self._attribute["filter_status"]
+
+    async def set_fan_speed(self, new_speed) -> None:
+        await self.hass.async_add_executor_job(
+            lambda: self.api_client.set_fan_speed(self.id, new_speed)
+        )
+        self._attribute["fan_speed"] = new_speed
+        await self.async_refresh()
 
     async def _update_device(self, *_) -> None:
         """Update the device information from the API."""
