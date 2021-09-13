@@ -1,8 +1,13 @@
 """Support for Blueair sensors."""
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import (
+    DEVICE_CLASS_CO2,
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_PM1,
+    DEVICE_CLASS_PM10,
+    DEVICE_CLASS_PM25,
+    DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS,
     TEMP_CELSIUS,
     PERCENTAGE,
 )
@@ -26,6 +31,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             [
                 BlueairTemperatureSensor(f"{device.device_name}_temperature", device),
                 BlueairHumiditySensor(f"{device.device_name}_humidity", device),
+                BlueairCO2Sensor(f"{device.device_name}_co2", device),
+                BlueairVOCSensor(f"{device.device_name}_voc", device),
+                BlueairAllPollutionSensor(
+                    f"{device.device_name}_all_pollution", device
+                ),
+                BlueairPM1Sensor(f"{device.device_name}_pm1", device),
+                BlueairPM10Sensor(f"{device.device_name}_pm10", device),
+                BlueairPM25Sensor(f"{device.device_name}_pm25", device),
             ]
         )
     async_add_entities(entities)
@@ -67,3 +80,111 @@ class BlueairHumiditySensor(BlueairEntity, SensorEntity):
         if self._device.humidity is None:
             return None
         return round(self._device.humidity, 0)
+
+
+class BlueairCO2Sensor(BlueairEntity, SensorEntity):
+    """Monitors the CO2."""
+
+    _attr_device_class = DEVICE_CLASS_CO2
+
+    def __init__(self, name, device):
+        """Initialize the CO2 sensor."""
+        super().__init__("co2", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current co2."""
+        if self._device.co2 is None:
+            return None
+        return round(self._device.co2, 0)
+
+
+class BlueairVOCSensor(BlueairEntity, SensorEntity):
+    """Monitors the VOC."""
+
+    _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
+
+    def __init__(self, name, device):
+        """Initialize the VOC sensor."""
+        super().__init__("voc", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current voc."""
+        if self._device.voc is None:
+            return None
+        return round(self._device.voc, 0)
+
+
+class BlueairAllPollutionSensor(BlueairEntity, SensorEntity):
+    """Monitors the all pollution."""
+
+    _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
+
+    def __init__(self, name, device):
+        """Initialize the all pollution sensor."""
+        super().__init__("all_pollution", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current all pollution."""
+        if self._device.all_pollution is None:
+            return None
+        return round(self._device.all_pollution, 0)
+
+
+class BlueairPM1Sensor(BlueairEntity, SensorEntity):
+    """Monitors the pm1"""
+
+    _attr_device_class = DEVICE_CLASS_PM1
+
+    def __init__(self, name, device):
+        """Initialize the pm1 sensor."""
+        super().__init__("pm1", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current pm1."""
+        if self._device.pm1 is None:
+            return None
+        return round(self._device.pm1, 0)
+
+
+class BlueairPM10Sensor(BlueairEntity, SensorEntity):
+    """Monitors the pm10"""
+
+    _attr_device_class = DEVICE_CLASS_PM10
+
+    def __init__(self, name, device):
+        """Initialize the pm10 sensor."""
+        super().__init__("pm10", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current pm10."""
+        if self._device.pm10 is None:
+            return None
+        return round(self._device.pm10, 0)
+
+
+class BlueairPM25Sensor(BlueairEntity, SensorEntity):
+    """Monitors the pm25"""
+
+    _attr_device_class = DEVICE_CLASS_PM25
+
+    def __init__(self, name, device):
+        """Initialize the pm25 sensor."""
+        super().__init__("pm25", name, device)
+        self._state: float = None
+
+    @property
+    def native_value(self) -> float:
+        """Return the current pm25."""
+        if self._device.pm25 is None:
+            return None
+        return round(self._device.pm25, 0)
