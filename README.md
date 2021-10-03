@@ -7,7 +7,7 @@ A note on testing, I only have 280i filters, there is a good chance that other m
 
 
 ## Installation
-- Copy custom_components/blueair to your HomeAssistant base config directory (the play where configuration.yaml lives)
+- Copy custom_components/blueair to your HomeAssistant base config directory (the place where configuration.yaml lives)
 - Add the "BlueAir" integration in the configuration.
 
 ![HASS BlueAir Device](https://github.com/aijayadams/hass-blueair/blob/blueair_device/device.jpg?raw=true)
