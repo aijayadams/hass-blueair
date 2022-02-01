@@ -21,12 +21,13 @@ async def validate_input(hass: core.HomeAssistant, data):
     try:
         client = await hass.async_add_executor_job(
             lambda: blueair.BlueAir(
-                username=data[CONF_USERNAME], password=data[CONF_PASSWORD]
+                username=data[CONF_USERNAME],
+                password=data[CONF_PASSWORD]
             )
         )
         LOGGER.debug(f"Connecting as {data[CONF_USERNAME]}")
     except KeyError as e:
-        raise InvalidAuth(f"BlueAir authorizarion failed")
+        raise InvalidAuth(f"BlueAir authorization failed")
     except Exception as e:
         raise CannotConnect()
 
