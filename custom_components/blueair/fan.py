@@ -45,12 +45,10 @@ class BlueairFan(BlueairEntity, FanEntity):
 
     @property
     def supported_features(self) -> int:
-        # If the fan_mode property is valid, enable support for presets
-        try:
-            self._device.fan_mode()
+        # If the fan_mode property is supported, enable support for presets
+        if self._device.fan_mode_supported:
             return SUPPORT_SET_SPEED + SUPPORT_PRESET_MODE
-        except KeyError:
-            return SUPPORT_SET_SPEED
+        return SUPPORT_SET_SPEED
 
     @property
     def is_on(self) -> int:
@@ -63,12 +61,14 @@ class BlueairFan(BlueairEntity, FanEntity):
     
     @property
     def preset_mode(self) -> Optional[str]:
-        return self._device.fan_mode
+        if self._device.fan_mode_supported:
+            return self._device.fan_mode
 
     @property
     def preset_modes(self) -> Optional[list]:
-        return list([str("auto")])
-
+        if self._device.fan_mode_supported:
+            return list([str("auto")])
+        
     async def async_set_percentage(self, percentage: int) -> None:
         """Sets fan speed percentage."""
         if percentage == 100:

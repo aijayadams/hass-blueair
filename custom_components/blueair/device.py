@@ -127,6 +127,12 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         return self._attribute["mode"]
 
     @property
+    def fan_mode_supported(self) -> bool():
+        if "mode" in self._attribute:
+            return True
+        return False
+
+    @property
     def filter_status(self) -> str:
         """Return the current filter status."""
         return self._attribute["filter_status"]
@@ -136,7 +142,6 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
             lambda: self.api_client.set_fan_speed(self.id, new_speed)
         )
         self._attribute["fan_speed"] = new_speed
-        self._attribute["mode"] = None
         await self.async_refresh()
 
     async def set_fan_mode(self, new_mode) -> None:
