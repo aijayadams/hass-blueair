@@ -185,6 +185,29 @@ class BlueAir(object):
             },
         )
 
+    def set_fan_mode(self, device_uuid, new_mode):
+        """
+        Set the fan mode to automatic
+        """
+        if new_mode == None:
+            new_mode="manual"
+
+        res = requests.post(
+            f"https://{self.home_host}/v2/device/{device_uuid}/attribute/mode/",
+            headers={
+                "Content-Type": "application/json",
+                "X-API-KEY-TOKEN": API_KEY,
+                "X-AUTH-TOKEN": self.auth_token,
+            },
+            json={
+                "currentValue": new_mode,
+                "scope": "device",
+                "defaultValue": new_mode,
+                "name": "mode",
+                "uuid": device_uuid,
+            },
+        )
+
     # Note: refreshes every 5 minutes
     def get_current_data_point(
         self, device_uuid: str
