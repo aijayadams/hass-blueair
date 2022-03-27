@@ -39,6 +39,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 BlueairPM1Sensor(f"{device.device_name}_pm1", device),
                 BlueairPM10Sensor(f"{device.device_name}_pm10", device),
                 BlueairPM25Sensor(f"{device.device_name}_pm25", device),
+                BlueairFilterStatusSensor(f"{device.device_name}_filter_status", device)
             ]
         )
     async_add_entities(entities)
@@ -122,14 +123,14 @@ class BlueairVOCSensor(BlueairEntity, SensorEntity):
 
 class BlueairAllPollutionSensor(BlueairEntity, SensorEntity):
     """Monitors the all pollution."""
-
-    _attr_device_class = DEVICE_CLASS_VOLATILE_ORGANIC_COMPOUNDS
-    _attr_native_unit_of_measurement = "ppb"
+    """The API returns the unit for this measurement as as % """
+    _attr_native_unit_of_measurement = "%"
 
     def __init__(self, name, device):
         """Initialize the all pollution sensor."""
         super().__init__("all_pollution", name, device)
         self._state: float = None
+        self._attr_icon = "mdi:molecule"
 
     @property
     def native_value(self) -> float:
@@ -194,3 +195,19 @@ class BlueairPM25Sensor(BlueairEntity, SensorEntity):
         if self._device.pm25 is None:
             return None
         return round(self._device.pm25, 0)
+
+class BlueairFilterStatusSensor(BlueairEntity, SensorEntity):
+    """Monitors the status of the Filter"""
+
+    def __init__(self, name, device):
+        """Initialize the filter_status sensor."""
+        super().__init__("filter_status", name, device)
+        self._state: str = None
+        self._attr_icon = "mdi:air-filter"
+
+    @property
+    def native_value(self) -> float:
+        """Return the current filter_status."""
+        if self._device.filter_status is None:
+            return None
+        return str(self._device.filter_status)
