@@ -10,4 +10,4 @@ A note on compatibility and testing, I only have 280i filters. The API response 
 - Copy custom_components/blueair to your HomeAssistant base config directory (the place where configuration.yaml lives)
 - Add the "BlueAir" integration in the configuration.
 
-![HASS BlueAir Device](https://github.com/aijayadams/hass-blueair/blob/blueair_device/device.png?raw=true)
+![HASS BlueAir Device](https://github.com/aijayadams/hass-blueair/blob/main/device.png)
