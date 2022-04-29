@@ -27,20 +27,25 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     ]["devices"]
     entities = []
     for device in devices:
-        entities.extend(
-            [
-                BlueairTemperatureSensor(f"{device.device_name}_temperature", device),
-                BlueairHumiditySensor(f"{device.device_name}_humidity", device),
-                BlueairCO2Sensor(f"{device.device_name}_co2", device),
-                BlueairVOCSensor(f"{device.device_name}_voc", device),
-                BlueairAllPollutionSensor(
-                    f"{device.device_name}_all_pollution", device
-                ),
-                BlueairPM1Sensor(f"{device.device_name}_pm1", device),
-                BlueairPM10Sensor(f"{device.device_name}_pm10", device),
-                BlueairPM25Sensor(f"{device.device_name}_pm25", device),
-            ]
-        )
+
+
+        # Only add sensors to non-classic models
+        if not device.model.startswith('classic') and not device.model == 'foobot':
+            entities.extend(
+                [
+                    BlueairTemperatureSensor(f"{device.device_name}_temperature", device),
+                    BlueairHumiditySensor(f"{device.device_name}_humidity", device),
+                    BlueairCO2Sensor(f"{device.device_name}_co2", device),
+                    BlueairVOCSensor(f"{device.device_name}_voc", device),
+                    BlueairAllPollutionSensor(
+                        f"{device.device_name}_all_pollution", device
+                    ),
+                    BlueairPM1Sensor(f"{device.device_name}_pm1", device),
+                    BlueairPM10Sensor(f"{device.device_name}_pm10", device),
+                    BlueairPM25Sensor(f"{device.device_name}_pm25", device),
+                ]
+            )
+
     async_add_entities(entities)
 
 

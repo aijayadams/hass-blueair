@@ -39,6 +39,8 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=60),
         )
 
+        self._update_device()
+
     async def _async_update_data(self):
         """Update data via library."""
         try:
