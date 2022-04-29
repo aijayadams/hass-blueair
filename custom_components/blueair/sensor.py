@@ -27,8 +27,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     ]["devices"]
     entities = []
     for device in devices:
-        # Only add sensors to non-classic models
-        if not device.model.startswith('classic') and not device.model == 'foobot':
+        # Don't add sensors to classic models
+        if (
+            device.model.startswith("classic") and not device.model.endswith("i")
+        ) or device.model == "foobot":
+            pass
+        else:            
             entities.extend(
                 [
                     BlueairTemperatureSensor(f"{device.device_name}_temperature", device),
