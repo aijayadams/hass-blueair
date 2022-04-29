@@ -39,8 +39,6 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=60),
         )
 
-        self._update_device()
-
     async def _async_update_data(self):
         """Update data via library."""
         try:
@@ -179,12 +177,20 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _update_device(self, *_) -> None:
         """Update the device information from the API."""
+        LOGGER.info(self._name)
         self._device_information = await self.hass.async_add_executor_job(
             lambda: self.api_client.get_info(self._uuid)
         )
-        self._datapoint = await self.hass.async_add_executor_job(
-            lambda: self.api_client.get_current_data_point(self._uuid)
-        )
+        LOGGER.info(f"_device_information: {self._device_information}")
+        try:
+            # Classics will not have the expected data here
+            self._datapoint = await self.hass.async_add_executor_job(
+                lambda: self.api_client.get_current_data_point(self._uuid)
+            )
+        except Exception:
+            pass
+        LOGGER.info(f"_datapoint: {self._datapoint}")
         self._attribute = await self.hass.async_add_executor_job(
             lambda: self.api_client.get_attributes(self._uuid)
         )
+        LOGGER.info(f"_attribute: {self._attribute}")

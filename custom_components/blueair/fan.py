@@ -58,7 +58,10 @@ class BlueairFan(BlueairEntity, FanEntity):
     @property
     def percentage(self) -> Optional[int]:
         """Return the current speed percentage."""
-        return int(round(self._device.fan_speed * 33.33, 0))
+        if self._device.fan_speed is not None:
+            return int(round(self._device.fan_speed * 33.33, 0))
+        else:
+            return 0
     
     @property
     def preset_mode(self) -> Optional[str]:
