@@ -72,63 +72,95 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
     @property
     def temperature(self) -> float:
         """Return the current temperature in degrees C."""
+        if "temperature" not in self._datapoint:
+            return None
         return self._datapoint["temperature"]
 
     @property
     def humidity(self) -> float:
         """Return the current relative humidity percentage."""
+        if "humidity" not in self._datapoint:
+            return None
         return self._datapoint["humidity"]
 
     @property
     def co2(self) -> float:
         """Return the current co2."""
+        if "co2" not in self._datapoint:
+            return None
         return self._datapoint["co2"]
 
     @property
     def voc(self) -> float:
         """Return the current voc."""
+        if "voc" not in self._datapoint:
+            return None
         return self._datapoint["voc"]
 
     @property
     def pm1(self) -> float:
         """Return the current pm1."""
+        if "pm1" not in self._datapoint:
+            return None
         return self._datapoint["pm1"]
 
     @property
     def pm10(self) -> float:
         """Return the current pm10."""
+        if "pm10" not in self._datapoint:
+            return None
         return self._datapoint["pm10"]
 
     @property
     def pm25(self) -> float:
         """Return the current pm25."""
+        if "pm25" not in self._datapoint:
+            return None
         return self._datapoint["pm25"]
 
     @property
     def all_pollution(self) -> float:
         """Return all pollution"""
+        if "all_pollution" not in self._datapoint:
+            return None
         return self._datapoint["all_pollution"]
 
     @property
     def fan_speed(self) -> int:
         """Return the current fan speed."""
+        if "fan_speed" not in self._attribute:
+            return None
         return int(self._attribute["fan_speed"])
 
     @property
     def is_on(self) -> bool():
         """Return the current fan state."""
+        if "fan_speed" not in self._attribute:
+            return None
         if self._attribute["fan_speed"] == "0":
             return False
         return True
 
     @property
     def fan_mode(self) -> str:
-        """Return the current fan mode."""
-        return self._attribute["fan_mode"]
+        """Return the current fan mode"""
+        if self._attribute["mode"] == "manual":
+            return None
+        return self._attribute["mode"]
+
+    @property
+    def fan_mode_supported(self) -> bool():
+        """Return if fan mode is supported. This function is used to lock out unsupported
+         functionality from the UI if the model doesnt support modes"""
+        if "mode" in self._attribute:
+            return True
+        return False
 
     @property
     def filter_status(self) -> str:
         """Return the current filter status."""
+        if "filter_status" not in self._attribute:
+            return None
         return self._attribute["filter_status"]
 
     async def set_fan_speed(self, new_speed) -> None:
@@ -136,6 +168,13 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
             lambda: self.api_client.set_fan_speed(self.id, new_speed)
         )
         self._attribute["fan_speed"] = new_speed
+        await self.async_refresh()
+
+    async def set_fan_mode(self, new_mode) -> None:
+        await self.hass.async_add_executor_job(
+            lambda: self.api_client.set_fan_mode(self.id, new_mode)
+        )
+        self._attribute["mode"] = new_mode
         await self.async_refresh()
 
     async def _update_device(self, *_) -> None:

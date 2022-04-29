@@ -76,7 +76,7 @@ class BlueAir(object):
         device. It can be stored and reused to avoid requesting it again when
         reinitializing the class at a later time.
         """
-        logger.info(f"GET https://api.blueair.io/v2/user/{self.username}/homehost/")
+        logger.debug(f"GET https://api.blueair.io/v2/user/{self.username}/homehost/")
 
         response = requests.get(
             f"https://api.blueair.io/v2/user/{self.username}/homehost/",
@@ -92,7 +92,7 @@ class BlueAir(object):
         The authentication token can be reused to prevent an additional network
         request when initializing the client.
         """
-        logger.info(f"GET https://{self.home_host}/v2/user/{self.username}/login/")
+        logger.debug(f"GET https://{self.home_host}/v2/user/{self.username}/login/")
 
         response = requests.get(
             f"https://{self.home_host}/v2/user/{self.username}/login/",
@@ -113,7 +113,7 @@ class BlueAir(object):
 
         This is a low level function that is used by most of the client API calls.
         """
-        logger.info(f"GET https://{self.home_host}/v2/{path}")
+        logger.debug(f"GET https://{self.home_host}/v2/{path}")
 
         return requests.get(
             f"https://{self.home_host}/v2/{path}",
@@ -181,6 +181,29 @@ class BlueAir(object):
                 "scope": "device",
                 "defaultValue": new_speed,
                 "name": "fan_speed",
+                "uuid": device_uuid,
+            },
+        )
+
+    def set_fan_mode(self, device_uuid, new_mode):
+        """
+        Set the fan mode to automatic
+        """
+        if new_mode == None:
+            new_mode="manual"
+
+        res = requests.post(
+            f"https://{self.home_host}/v2/device/{device_uuid}/attribute/mode/",
+            headers={
+                "Content-Type": "application/json",
+                "X-API-KEY-TOKEN": API_KEY,
+                "X-AUTH-TOKEN": self.auth_token,
+            },
+            json={
+                "currentValue": new_mode,
+                "scope": "device",
+                "defaultValue": new_mode,
+                "name": "mode",
                 "uuid": device_uuid,
             },
         )
