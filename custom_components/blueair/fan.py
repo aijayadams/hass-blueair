@@ -27,11 +27,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     ]["devices"]
     entities = []
     for device in devices:
-        entities.extend(
-            [
-                BlueairFan(f"{device.device_name}_fan", device),
-            ]
-        )
+        if device.model != 'foobot':
+            entities.extend(
+                [
+                    BlueairFan(f"{device.device_name}_fan", device),
+                ]
+            )
     async_add_entities(entities)
 
 
