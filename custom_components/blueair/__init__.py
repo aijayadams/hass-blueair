@@ -47,7 +47,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ]
     await asyncio.gather(*tasks)
 
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    try:
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    except AttributeError:
+        hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
     return True
 
