@@ -31,7 +31,9 @@ class BlueairEntity(Entity):
     @property
     def device_info(self) -> DeviceInfo:
         """Return a device description for device registry."""
+        connections = {(CONNECTION_NETWORK_MAC, self._device.mac)}
         return {
+            "connections": connections,
             "identifiers": {(DOMAIN, self._device.id)},
             "manufacturer": self._device.manufacturer,
             "model": self._device.model,
@@ -41,6 +43,7 @@ class BlueairEntity(Entity):
     async def async_update(self):
         """Update Blueair entity."""
         await self._device.async_request_refresh()
+        self._attr_available = self._device.wifi_working
 
     async def async_added_to_hass(self):
         """When entity is added to hass."""

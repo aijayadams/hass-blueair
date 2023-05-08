@@ -185,6 +185,26 @@ class BlueAir(object):
             },
         )
 
+    def set_brightness(self, device_uuid, brightness):
+        """
+        Set the brightness per @spikeyGG comment at https://community.home-assistant.io/t/blueair-purifier-addon/154456/14
+        """
+        res = requests.post(
+            f"https://{self.home_host}/v2/device/{device_uuid}/attribute/brightness/",
+            headers={
+                "Content-Type": "application/json",
+                "X-API-KEY-TOKEN": API_KEY,
+                "X-AUTH-TOKEN": self.auth_token,
+            },
+            json={
+                "currentValue": brightness,
+                "scope": "device",
+                "defaultValue": brightness,
+                "name": "brightness",
+                "uuid": device_uuid,
+            },
+        )
+
     def set_fan_mode(self, device_uuid, new_mode):
         """
         Set the fan mode to automatic
