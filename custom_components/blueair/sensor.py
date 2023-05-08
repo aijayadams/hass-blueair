@@ -1,5 +1,7 @@
 """Support for Blueair sensors."""
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import (
+    SensorEntity
+)
 from homeassistant.const import (
     DEVICE_CLASS_CO2,
     DEVICE_CLASS_TEMPERATURE,
@@ -11,7 +13,6 @@ from homeassistant.const import (
     TEMP_CELSIUS,
     PERCENTAGE,
 )
-
 from .const import DOMAIN
 from .device import BlueairDataUpdateCoordinator
 from .entity import BlueairEntity
@@ -29,10 +30,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     for device in devices:
         # Don't add sensors to classic models
         if (
-            device.model.startswith("classic") and not device.model.endswith("i")
+                device.model.startswith("classic") and not device.model.endswith("i")
         ) or device.model == "foobot":
             pass
-        else:            
+        else:
             entities.extend(
                 [
                     BlueairTemperatureSensor(f"{device.device_name}_temperature", device),
@@ -200,19 +201,3 @@ class BlueairPM25Sensor(BlueairEntity, SensorEntity):
         if self._device.pm25 is None:
             return None
         return round(self._device.pm25, 0)
-
-class BlueairFilterStatusSensor(BlueairEntity, SensorEntity):
-    """Monitors the status of the Filter"""
-
-    def __init__(self, name, device):
-        """Initialize the filter_status sensor."""
-        super().__init__("filter_status", name, device)
-        self._state: str = None
-        self._attr_icon = "mdi:air-filter"
-
-    @property
-    def native_value(self) -> float:
-        """Return the current filter_status."""
-        if self._device.filter_status is None:
-            return None
-        return str(self._device.filter_status)

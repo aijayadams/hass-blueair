@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from typing import Any
 from async_timeout import timeout
 
-
 from . import blueair
 
 API = blueair.BlueAir
@@ -20,13 +19,15 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
     """Blueair device object."""
 
     def __init__(
-        self, hass: HomeAssistant, api_client: API, uuid: str, device_name: str
+            self, hass: HomeAssistant, api_client: API, uuid: str, device_name: str,
+            mac: str = None,
     ) -> None:
         """Initialize the device."""
         self.hass: HomeAssistant = hass
         self.api_client: API = api_client
         self._uuid: str = uuid
         self._name: str = device_name
+        self.mac = mac
         self._manufacturer: str = "BlueAir"
         self._device_information: dict[str, Any] = {}
         self._datapoint: dict[str, Any] = {}
@@ -68,63 +69,63 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         return self._device_information.get("compatibility", self.id)
 
     @property
-    def temperature(self) -> float:
+    def temperature(self) -> float | None:
         """Return the current temperature in degrees C."""
         if "temperature" not in self._datapoint:
             return None
         return self._datapoint["temperature"]
 
     @property
-    def humidity(self) -> float:
+    def humidity(self) -> float | None:
         """Return the current relative humidity percentage."""
         if "humidity" not in self._datapoint:
             return None
         return self._datapoint["humidity"]
 
     @property
-    def co2(self) -> float:
+    def co2(self) -> float | None:
         """Return the current co2."""
         if "co2" not in self._datapoint:
             return None
         return self._datapoint["co2"]
 
     @property
-    def voc(self) -> float:
+    def voc(self) -> float | None:
         """Return the current voc."""
         if "voc" not in self._datapoint:
             return None
         return self._datapoint["voc"]
 
     @property
-    def pm1(self) -> float:
+    def pm1(self) -> float | None:
         """Return the current pm1."""
         if "pm1" not in self._datapoint:
             return None
         return self._datapoint["pm1"]
 
     @property
-    def pm10(self) -> float:
+    def pm10(self) -> float | None:
         """Return the current pm10."""
         if "pm10" not in self._datapoint:
             return None
         return self._datapoint["pm10"]
 
     @property
-    def pm25(self) -> float:
+    def pm25(self) -> float | None:
         """Return the current pm25."""
         if "pm25" not in self._datapoint:
             return None
         return self._datapoint["pm25"]
 
     @property
-    def all_pollution(self) -> float:
+    def all_pollution(self) -> float | None:
         """Return all pollution"""
         if "all_pollution" not in self._datapoint:
             return None
         return self._datapoint["all_pollution"]
 
     @property
-    def fan_speed(self) -> int:
+    def fan_speed(self) -> int | None:
         """Return the current fan speed."""
         if "fan_speed" not in self._attribute:
             return None
@@ -140,7 +141,7 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         return True
 
     @property
-    def fan_mode(self) -> str:
+    def fan_mode(self) -> str | None:
         """Return the current fan mode"""
         if self._attribute["mode"] == "manual":
             return None
@@ -155,11 +156,39 @@ class BlueairDataUpdateCoordinator(DataUpdateCoordinator):
         return False
 
     @property
-    def filter_status(self) -> str:
+    def filter_expired(self) -> bool | None:
         """Return the current filter status."""
         if "filter_status" not in self._attribute:
             return None
-        return self._attribute["filter_status"]
+        return self._attribute["filter_status"] != "OK"
+
+    @property
+    def child_lock(self) -> bool | None:
+        """Return the current filter status."""
+        if "child_lock" not in self._attribute:
+            return None
+        return bool(self._attribute["child_lock"])
+
+    @property
+    def wifi_working(self) -> bool | None:
+        """Return the current filter status."""
+        if "wifi_status" not in self._attribute:
+            return None
+        return self._attribute["wifi_status"] == "1"
+
+    @property
+    def brightness(self) -> int | None:
+        """Return the current filter status."""
+        if "brightness" not in self._attribute:
+            return None
+        return int(self._attribute["brightness"])
+
+    async def set_brightness(self, brightness) -> None:
+        await self.hass.async_add_executor_job(
+            lambda: self.api_client.set_brightness(self.id, brightness)
+        )
+        self._attribute["brightness"] = brightness
+        await self.async_refresh()
 
     async def set_fan_speed(self, new_speed) -> None:
         await self.hass.async_add_executor_job(
